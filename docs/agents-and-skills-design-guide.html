@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Codex と Claude Code の agents / skills をAIと設計するための要件整理ガイド">
+  <title>Agents / Skills 設計ガイド | AI 開発リファレンス</title>
+  <style>
+    :root { --ink:#17212b; --paper:#f4f2ec; --card:#fffef9; --green:#1b6658; --rust:#a94327; --rule:#d8d4ca; --mute:#68716d; --code:#202d36; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:linear-gradient(90deg,rgba(27,102,88,.035) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(rgba(27,102,88,.035) 1px,transparent 1px) 0 0/32px 32px,var(--paper); font-family:"Yu Gothic UI","Hiragino Sans",system-ui,sans-serif; line-height:1.7; }
+    code, pre { font-family:"Cascadia Code","SFMono-Regular",Consolas,monospace; }
+    .wrap { width:min(1080px,calc(100% - 32px)); margin:auto; }
+    header { padding:48px 0 30px; border-bottom:1px solid var(--rule); }
+    .back { display:inline-block; margin-bottom:19px; color:var(--green); font-size:.86rem; text-decoration:none; }
+    .back:hover { text-decoration:underline; text-underline-offset:4px; }
+    .eyebrow { margin:0 0 10px; color:var(--green); font:700 .77rem/1 "Cascadia Code",monospace; letter-spacing:.13em; }
+    h1 { max-width:760px; margin:0 0 12px; font:700 clamp(2rem,5vw,3.7rem)/1.12 Georgia,"Yu Mincho",serif; letter-spacing:-.04em; }
+    h1 em { color:var(--rust); font-style:normal; }
+    .lede { max-width:710px; margin:0; color:#435056; }
+    nav { position:sticky; top:0; z-index:3; border-bottom:1px solid var(--rule); background:rgba(244,242,236,.94); backdrop-filter:blur(10px); }
+    nav .wrap { display:flex; gap:17px; overflow-x:auto; padding:10px 0; }
+    nav a { flex:none; color:var(--ink); font-size:.84rem; text-decoration:none; }
+    nav a:hover { color:var(--rust); text-decoration:underline; text-underline-offset:4px; }
+    main { padding:38px 0 70px; }
+    section { margin-bottom:52px; }
+    .section-title { display:flex; align-items:baseline; gap:11px; margin-bottom:16px; }
+    .section-title span { color:var(--rust); font:700 .76rem/1 "Cascadia Code",monospace; }
+    h2 { margin:0; font-size:clamp(1.25rem,2.5vw,1.65rem); letter-spacing:-.025em; }
+    h3 { margin:0 0 8px; font-size:1rem; }
+    .lead-card { padding:20px 22px; border-left:5px solid var(--green); background:#eff5f1; }
+    .lead-card p { margin:0; }
+    .split { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .card { padding:21px; border:1px solid var(--rule); background:var(--card); }
+    .card p:last-child, .card ul:last-child { margin-bottom:0; }
+    .card.skill { border-top:4px solid var(--green); }
+    .card.agent { border-top:4px solid var(--rust); }
+    .tag { display:inline-block; margin-bottom:13px; padding:3px 7px; background:#eaf1ed; color:var(--green); font:700 .72rem/1 "Cascadia Code",monospace; }
+    .agent .tag { background:#fff0e9; color:var(--rust); }
+    .decision { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; border:1px solid var(--rule); background:var(--rule); }
+    .decision article { padding:19px; background:var(--card); }
+    .decision p { margin:0; color:#4b565a; font-size:.91rem; }
+    .checklist { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 16px; margin:0; padding:0; list-style:none; }
+    .checklist li { padding:12px 0; border-bottom:1px solid var(--rule); }
+    .checklist strong { display:block; font-size:.94rem; }
+    .checklist span { color:#526066; font-size:.88rem; }
+    pre { overflow:auto; margin:0; padding:18px; background:var(--code); color:#eaf0e9; font-size:.83rem; line-height:1.65; white-space:pre-wrap; }
+    .hint { margin-top:12px; color:var(--mute); font-size:.86rem; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--rule); background:var(--card); }
+    table { width:100%; border-collapse:collapse; min-width:690px; font-size:.9rem; }
+    th, td { padding:13px 14px; border-bottom:1px solid var(--rule); text-align:left; vertical-align:top; }
+    th { color:#3c4a4d; background:#edf0eb; font-size:.78rem; letter-spacing:.05em; }
+    tr:last-child td { border-bottom:0; }
+    .sources { display:flex; flex-wrap:wrap; gap:9px; }
+    .sources a { padding:7px 10px; border:1px solid var(--rule); background:var(--card); color:var(--ink); font-size:.82rem; text-decoration:none; }
+    .sources a:hover { color:var(--green); border-color:var(--green); }
+    footer { padding:20px 0 34px; border-top:1px solid var(--rule); color:var(--mute); font-size:.8rem; }
+    @media (max-width:720px) { header { padding-top:38px; } .split,.checklist { grid-template-columns:1fr; } .decision { grid-template-columns:1fr; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap">
+    <a class="back" href="index.html">← AI 開発リファレンス</a>
+    <p class="eyebrow">DESIGN BRIEF / REUSABLE WORKFLOWS</p>
+    <h1>Agents / Skills を<br><em>依頼できる形にする</em></h1>
+    <p class="lede">これは完成済みのテンプレート集ではなく、AIに「何を作ってほしいか」を正しく渡すための設計メモです。目的・境界・完成条件を先に言語化すると、後から手直ししやすい小さな部品になります。</p>
+  </div></header>
+  <nav aria-label="ページ内ナビゲーション"><div class="wrap">
+    <a href="#choose">選ぶ</a><a href="#brief">渡す情報</a><a href="#skill">Skill の依頼</a><a href="#agent">Agent の依頼</a><a href="#review">作成前レビュー</a>
+  </div></nav>
+  <main class="wrap">
+    <section id="choose">
+      <div class="section-title"><span>01</span><h2>最初に、置き場所を選ぶ</h2></div>
+      <div class="decision">
+        <article><h3>一度きりの依頼</h3><p>まずは通常のプロンプトで十分です。繰り返し使うと分かってから、Skill や Agent に昇格させます。</p></article>
+        <article><h3>繰り返す手順</h3><p><strong>Skill</strong>。同じ入力から、同じ判断手順・出力形式を再利用したいときに向きます。</p></article>
+        <article><h3>独立した専門作業</h3><p><strong>Subagent</strong>。調査・レビュー・検証などを別コンテキストで走らせ、要約だけを戻したいときに向きます。</p></article>
+      </div>
+      <p class="hint">長く残すべき事実や規約は <code>AGENTS.md</code> / <code>CLAUDE.md</code>、機械的に必ず守らせる制約は Hooks や権限設定の担当です。</p>
+    </section>
+
+    <section id="brief">
+      <div class="section-title"><span>02</span><h2>AIへ渡す、共通の設計ブリーフ</h2></div>
+      <div class="lead-card"><p><strong>良い依頼は「何をするか」だけでなく、「何をしないか」と「いつ終わりか」を持ちます。</strong> 下の6項目を箇条書きで渡せば、AIは必要なファイル形式へ落とし込みやすくなります。</p></div>
+      <ul class="checklist" style="margin-top:14px;">
+        <li><strong>1. 一つの目的</strong><span>誰が、どんな結果を必要とするのか。役割を一文で言えるようにする。</span></li>
+        <li><strong>2. 起動条件</strong><span>どんな依頼・状況で使うか。似ているが対象外のケースも書く。</span></li>
+        <li><strong>3. 入力</strong><span>前提にするファイル、引数、ユーザーから受け取る情報、不足時の扱い。</span></li>
+        <li><strong>4. 手順と道具</strong><span>必要な順番、使ってよいツール、読み取り専用か、外部操作の可否。</span></li>
+        <li><strong>5. 出力と完成条件</strong><span>返す形式、必須の根拠、検証方法、完了とみなす条件。</span></li>
+        <li><strong>6. 境界と停止条件</strong><span>推測してはいけないこと、変更してはいけない範囲、質問・停止すべき条件。</span></li>
+      </ul>
+    </section>
+
+    <section id="skill">
+      <div class="section-title"><span>03</span><h2>Skill を作るときに渡す情報</h2></div>
+      <div class="split">
+        <article class="card skill">
+          <span class="tag">SKILL = REUSABLE WORKFLOW</span>
+          <h3>設計上の要点</h3>
+          <ul>
+            <li>一つの認識しやすいユーザー目的に絞る。</li>
+            <li><code>description</code> に「何をするか」と「いつ使うか」を短く書く。</li>
+            <li>本文には、入力 → 手順 → 出力 → 例外処理の順で命令を書く。</li>
+            <li>詳細資料は <code>references/</code>、雛形は <code>assets/</code>、決定的な処理だけを <code>scripts/</code> へ分ける。</li>
+          </ul>
+        </article>
+        <article class="card skill">
+          <span class="tag">ASK THE AI</span>
+          <h3>依頼文の骨子</h3>
+          <pre>次の用途の Skill を設計してください。
+
+目的: [利用者が達成したいこと]
+起動条件: [使う依頼] / [使わない依頼]
+入力: [必要な情報・ファイル]
+手順: [守る順番・使う道具]
+出力: [形式・必須項目]
+境界: [推測禁止・外部操作の可否]
+検証: [成功 / 失敗の確認方法]
+
+最初にファイル構成と SKILL.md の概要を提案し、
+不足する判断があれば質問してから作成してください。</pre>
+        </article>
+      </div>
+      <p class="hint">「手順が何度も同じ」「長い手順書を毎回貼っている」が Skill 化の目安です。説明だけで十分なら、最初はスクリプトを追加しません。</p>
+    </section>
+
+    <section id="agent">
+      <div class="section-title"><span>04</span><h2>Subagent を作るときに渡す情報</h2></div>
+      <div class="split">
+        <article class="card agent">
+          <span class="tag">AGENT = SPECIALIST WORKER</span>
+          <h3>設計上の要点</h3>
+          <ul>
+            <li>担当範囲を狭くする。例: 「PRの根拠付きレビュー」「読み取り専用の調査」。</li>
+            <li>主担当との受け渡しを決める。何を受け取り、どの粒度で要約して返すか。</li>
+            <li>ツールと権限を最小化する。調査役なら読み取り専用を基本にする。</li>
+            <li>並列実行時に同じファイルを編集させない。書き込み役の所有範囲を分ける。</li>
+          </ul>
+        </article>
+        <article class="card agent">
+          <span class="tag">ASK THE AI</span>
+          <h3>依頼文の骨子</h3>
+          <pre>次の用途のカスタム Subagent を設計してください。
+
+担当: [専門役を一文で]
+受け取る仕事: [入力・前提]
+返すもの: [要約・ファイル参照・成果物]
+許可する操作: [読み取り / 編集 / 実行]
+禁止する操作: [変更範囲・外部操作]
+完了条件: [いつ終了するか]
+他の agent との関係: [依存・所有範囲]
+
+Codex 用 TOML と Claude Code 用 Markdown の差分を説明し、
+まず片方の実装案を提案してから作成してください。</pre>
+        </article>
+      </div>
+      <div class="table-wrap" style="margin-top:16px;"><table>
+        <thead><tr><th>対象</th><th>作成ファイル</th><th>まず決める項目</th></tr></thead>
+        <tbody>
+          <tr><td>Codex</td><td><code>.codex/agents/&lt;name&gt;.toml</code></td><td><code>name</code>、<code>description</code>、<code>developer_instructions</code>。必要ならモデル・推論・sandbox を追加。</td></tr>
+          <tr><td>Claude Code</td><td><code>.claude/agents/&lt;name&gt;.md</code></td><td>YAML frontmatter の <code>name</code> と <code>description</code>、本文の専門役としての指示・許可ツール。</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="review">
+      <div class="section-title"><span>05</span><h2>作成前の5問レビュー</h2></div>
+      <div class="decision">
+        <article><h3>本当に再利用するか？</h3><p>一度きりなら通常のプロンプトへ戻す。設定ファイルは増やしすぎない。</p></article>
+        <article><h3>一文で説明できるか？</h3><p>目的や担当が一文で言えないなら、複数の Skill / Agent に分ける。</p></article>
+        <article><h3>誤作動しても安全か？</h3><p>広すぎる起動条件、過剰な権限、曖昧な外部操作は縮める。</p></article>
+        <article><h3>結果を判定できるか？</h3><p>出力形式・根拠・テストなど、成功を人間が判断できる形にする。</p></article>
+        <article><h3>維持できるか？</h3><p>変わりやすい詳細は参照ファイルへ。本文は短く、更新理由を残す。</p></article>
+        <article><h3>誰の設定か？</h3><p>個人で使うならホーム、チームで共有するならプロジェクト内に置く。</p></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title"><span>06</span><h2>一次情報</h2></div>
+      <div class="sources">
+        <a href="https://learn.chatgpt.com/docs/build-skills">OpenAI: Build skills</a>
+        <a href="https://learn.chatgpt.com/docs/agent-configuration/subagents">OpenAI: Codex Subagents</a>
+        <a href="https://code.claude.com/docs/en/skills">Anthropic: Skills</a>
+        <a href="https://code.claude.com/docs/en/sub-agents">Anthropic: Subagents</a>
+      </div>
+      <p class="hint">最終確認: 2026-08-09。プロダクト固有の設定項目は更新されるため、作成時には公式ドキュメントを再確認します。</p>
+    </section>
+  </main>
+  <footer><div class="wrap">agents-common · AI 開発リファレンス</div></footer>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Codex と Claude Code のファイル名、配置場所、サブエージェント、コンテキスト操作のクイックリファレンス">
+  <title>AI 開発・混同防止カード | Codex × Claude Code</title>
+  <style>
+    :root {
+      --ink: #17212b;
+      --paper: #f4f2ec;
+      --card: #fffef9;
+      --codex: #1b6658;
+      --claude: #a94327;
+      --mute: #68716d;
+      --rule: #d8d4ca;
+      --code: #202d36;
+      --shadow: 0 14px 34px rgba(29, 38, 36, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(27, 102, 88, .035) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(rgba(27, 102, 88, .035) 1px, transparent 1px) 0 0 / 32px 32px,
+        var(--paper);
+      font-family: "Yu Gothic UI", "Hiragino Sans", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+
+    code, kbd, .path {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: .9em;
+    }
+
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    .masthead { padding: 48px 0 30px; border-bottom: 1px solid var(--rule); }
+    .eyebrow {
+      margin: 0 0 13px;
+      color: var(--codex);
+      font-family: "Cascadia Code", monospace;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 720px;
+      margin-bottom: 12px;
+      font-family: Georgia, "Yu Mincho", serif;
+      font-size: clamp(2.05rem, 5vw, 3.7rem);
+      font-weight: 700;
+      letter-spacing: -.04em;
+      line-height: 1.12;
+    }
+    h1 em { color: var(--claude); font-style: normal; }
+    .lede { max-width: 690px; color: #3e4b50; font-size: 1.06rem; }
+    .stamp {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 5px 10px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      color: var(--mute);
+      font-size: .78rem;
+    }
+
+    nav { position: sticky; top: 0; z-index: 5; background: rgba(244, 242, 236, .94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--rule); }
+    nav .wrap { display: flex; gap: 18px; overflow-x: auto; padding: 11px 0; }
+    nav a { flex: none; color: var(--ink); font-size: .86rem; text-decoration: none; }
+    nav a:hover { color: var(--claude); text-decoration: underline; text-underline-offset: 4px; }
+
+    main { padding: 42px 0 72px; }
+    section { margin-bottom: 54px; }
+    .section-title { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+    .section-title span { color: var(--claude); font: 700 .78rem/1 "Cascadia Code", monospace; }
+    h2 { margin: 0; font-size: clamp(1.25rem, 2.5vw, 1.65rem); letter-spacing: -.025em; }
+
+    .answer {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 20px;
+      border-left: 5px solid var(--claude);
+      background: #fff7f3;
+    }
+    .answer strong { font-size: 1.45rem; line-height: 1; }
+    .answer p { margin: 0; }
+
+    .comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .tool-card { overflow: hidden; border: 1px solid var(--rule); background: var(--card); box-shadow: var(--shadow); }
+    .tool-card header { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; color: white; }
+    .tool-card.codex header { background: var(--codex); }
+    .tool-card.claude header { background: var(--claude); }
+    .tool-card h3 { margin: 0; font-size: 1.2rem; }
+    .tool-card header small { font-family: "Cascadia Code", monospace; opacity: .82; }
+    .tool-card .body { padding: 19px; }
+    .tool-card p:last-child, .tool-card ul:last-child { margin-bottom: 0; }
+
+    .fact { padding: 14px 0; border-bottom: 1px solid var(--rule); }
+    .fact:first-child { padding-top: 0; }
+    .fact:last-child { padding-bottom: 0; border-bottom: 0; }
+    .label { display: block; margin-bottom: 3px; color: var(--mute); font-size: .78rem; font-weight: 700; letter-spacing: .06em; }
+    .path { display: block; overflow-wrap: anywhere; color: var(--code); font-weight: 700; }
+    .note { margin-top: 14px; color: var(--mute); font-size: .88rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .tile { padding: 20px; border: 1px solid var(--rule); background: var(--card); }
+    .tile h3 { margin-bottom: 7px; font-size: 1rem; }
+    .tile p { margin-bottom: 0; color: #455158; font-size: .92rem; }
+
+    .command-list { display: grid; gap: 10px; }
+    .command { display: grid; grid-template-columns: 126px 1fr; gap: 14px; align-items: center; padding: 12px 14px; background: #edf0eb; }
+    .command code { width: fit-content; padding: 3px 6px; border-radius: 3px; background: var(--code); color: #f6f2e8; font-weight: 700; }
+    .command p { margin: 0; font-size: .9rem; }
+
+    .personal { padding: 20px; border: 1px dashed #9d988a; background: rgba(255, 254, 249, .66); }
+    .personal h3 { margin-bottom: 8px; }
+    .personal ul { margin: 0; padding-left: 1.15rem; }
+    .sources { display: flex; flex-wrap: wrap; gap: 10px; }
+    .sources a { padding: 7px 10px; border: 1px solid var(--rule); color: var(--ink); background: var(--card); font-size: .82rem; text-decoration: none; }
+    .sources a:hover { border-color: var(--codex); color: var(--codex); }
+    footer { padding: 22px 0 38px; border-top: 1px solid var(--rule); color: var(--mute); font-size: .82rem; }
+
+    @media (max-width: 760px) {
+      .masthead { padding-top: 38px; }
+      .comparison, .grid { grid-template-columns: 1fr; }
+      .command { grid-template-columns: 98px 1fr; gap: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <p class="eyebrow">field manual / ai development</p>
+      <h1>Codex × Claude Code<br><em>開発早見表</em></h1>
+      <p class="lede">Codex と Claude Code で混同しやすいファイル名、スキル、サブエージェント、コンテキスト操作を確認するための早見表です。</p>
+      <span class="stamp">最終確認: 2026-08-09 · 仕様は更新されるため公式ドキュメントも確認</span>
+    </div>
+  </header>
+
+  <nav aria-label="ページ内ナビゲーション">
+    <div class="wrap">
+      <a href="#names">名前と配置</a>
+      <a href="#skills">Skills</a>
+      <a href="#agents">サブエージェント</a>
+      <a href="#context">コンテキスト</a>
+      <a href="#checks">確認コマンド</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="names">
+      <div class="section-title"><span>01</span><h2>まず、ファイル名</h2></div>
+      <div class="answer">
+        <strong>!</strong>
+        <p><strong><code>AGENT.md</code> ではなく <code>AGENTS.md</code>。</strong> Codex の標準指示ファイルは複数形です。Claude Code の標準指示ファイルは <code>CLAUDE.md</code>。このリポジトリの運用では、両方を各ツールの設定ディレクトリへ置き、<code>CLAUDE.md</code> が同居する <code>AGENTS.md</code> を読み込みます。</p>
+      </div>
+      <div class="comparison" style="margin-top: 16px;">
+        <article class="tool-card codex">
+          <header><h3>Codex</h3><small>AGENTS.md</small></header>
+          <div class="body">
+            <div class="fact"><span class="label">グローバル</span><span class="path">~/.codex/AGENTS.md</span></div>
+            <div class="fact"><span class="label">プロジェクト</span><span class="path">&lt;repo&gt;/AGENTS.md</span></div>
+            <div class="fact"><span class="label">一時的な上書き</span><span class="path">AGENTS.override.md</span></div>
+            <p class="note">より深いディレクトリの指示が後から結合されます。</p>
+          </div>
+        </article>
+        <article class="tool-card claude">
+          <header><h3>Claude Code</h3><small>CLAUDE.md</small></header>
+          <div class="body">
+            <div class="fact"><span class="label">グローバル</span><span class="path">~/.claude/CLAUDE.md</span></div>
+            <div class="fact"><span class="label">プロジェクト</span><span class="path">&lt;repo&gt;/CLAUDE.md または &lt;repo&gt;/.claude/CLAUDE.md</span></div>
+            <div class="fact"><span class="label">追加読み込み</span><span class="path">@AGENTS.md</span></div>
+            <p class="note">Claude Code は <code>AGENTS.md</code> を自動では読まないため、必要なら <code>CLAUDE.md</code> からインポートします。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-title"><span>02</span><h2>skill か skills か</h2></div>
+      <div class="grid">
+        <article class="tile"><h3>ディレクトリは複数形</h3><p><code>skills/</code> を使います。各スキルを配下の独立したディレクトリとして置きます。</p></article>
+        <article class="tile"><h3>入口は大文字・単数形</h3><p>必須の入口ファイルは <code>SKILL.md</code>。<code>skill.md</code> ではありません。</p></article>
+        <article class="tile"><h3>一つのスキル = 一つの仕事</h3><p><code>SKILL.md</code> に指示、必要に応じて <code>scripts/</code>、<code>references/</code>、<code>assets/</code> を同居させます。</p></article>
+      </div>
+      <div class="comparison" style="margin-top: 16px;">
+        <article class="tool-card codex">
+          <header><h3>Codex の配置</h3><small>.agents/skills</small></header>
+          <div class="body">
+            <div class="fact"><span class="label">個人用</span><span class="path">~/.agents/skills/&lt;skill-name&gt;/SKILL.md</span></div>
+            <div class="fact"><span class="label">プロジェクト用</span><span class="path">&lt;repo&gt;/.agents/skills/&lt;skill-name&gt;/SKILL.md</span></div>
+          </div>
+        </article>
+        <article class="tool-card claude">
+          <header><h3>Claude Code の配置</h3><small>.claude/skills</small></header>
+          <div class="body">
+            <div class="fact"><span class="label">個人用</span><span class="path">~/.claude/skills/&lt;skill-name&gt;/SKILL.md</span></div>
+            <div class="fact"><span class="label">プロジェクト用</span><span class="path">&lt;repo&gt;/.claude/skills/&lt;skill-name&gt;/SKILL.md</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="agents">
+      <div class="section-title"><span>03</span><h2>サブエージェントは両方ある。ただし形式が違う</h2></div>
+      <div class="comparison">
+        <article class="tool-card codex">
+          <header><h3>Codex</h3><small>TOML</small></header>
+          <div class="body">
+            <p>標準の <code>default</code>、<code>worker</code>、<code>explorer</code> があるため、通常はファイルを作らなくても並列作業できます。独自エージェントを作るときだけ TOML を追加します。</p>
+            <div class="fact"><span class="label">個人用カスタムエージェント</span><span class="path">~/.codex/agents/&lt;name&gt;.toml</span></div>
+            <div class="fact"><span class="label">プロジェクト用カスタムエージェント</span><span class="path">&lt;repo&gt;/.codex/agents/&lt;name&gt;.toml</span></div>
+            <p class="note">最低限 <code>name</code>、<code>description</code>、<code>developer_instructions</code> を定義します。</p>
+          </div>
+        </article>
+        <article class="tool-card claude">
+          <header><h3>Claude Code</h3><small>Markdown + YAML</small></header>
+          <div class="body">
+            <p>Explore・Plan・General-purpose などの標準サブエージェントがあります。繰り返し使う専門役を作る場合は Markdown ファイルで定義します。</p>
+            <div class="fact"><span class="label">個人用カスタムエージェント</span><span class="path">~/.claude/agents/&lt;name&gt;.md</span></div>
+            <div class="fact"><span class="label">プロジェクト用カスタムエージェント</span><span class="path">&lt;repo&gt;/.claude/agents/&lt;name&gt;.md</span></div>
+            <p class="note">YAML frontmatter に <code>name</code> と <code>description</code>、本文に役割の指示を書きます。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="context">
+      <div class="section-title"><span>04</span><h2>コンテキストが長くなったら</h2></div>
+      <div class="comparison">
+        <article class="tool-card codex">
+          <header><h3>Codex</h3><small>CLI</small></header>
+          <div class="body command-list">
+            <div class="command"><code>/compact</code><p>会話を要約して継続。文脈を節約したいとき。</p></div>
+            <div class="command"><code>/clear</code><p>表示と会話をリセットして、新しいチャットを始める。</p></div>
+            <div class="command"><code>/new</code><p>画面表示を残したまま、新しいチャットを始める。</p></div>
+            <div class="command"><code>/status</code><p>コンテキスト使用量・チャット情報を確認する。</p></div>
+          </div>
+        </article>
+        <article class="tool-card claude">
+          <header><h3>Claude Code</h3><small>CLI</small></header>
+          <div class="body command-list">
+            <div class="command"><code>/compact</code><p>会話を要約して継続。必要なら要約の焦点も渡せる。</p></div>
+            <div class="command"><code>/clear</code><p>空の文脈で新しい会話を始める。<code>/reset</code>、<code>/new</code> も同義。</p></div>
+            <div class="command"><code>/context</code><p>現在のコンテキスト使用量と重い要素を可視化する。</p></div>
+            <div class="command"><code>/memory</code><p>読み込まれた <code>CLAUDE.md</code>・ルール・自動メモリを確認する。</p></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="checks">
+      <div class="section-title"><span>05</span><h2>「効いている？」の確認</h2></div>
+      <div class="grid">
+        <article class="tile"><h3>Codex: 指示</h3><p><code>codex --ask-for-approval never "Summarize the current instructions."</code> で読み込まれた指示を確かめます。</p></article>
+        <article class="tile"><h3>Codex: スキルと子エージェント</h3><p><code>/skills</code> でスキルを探し、<code>/agent</code> または <code>/subagents</code> で子スレッドを確認します。</p></article>
+        <article class="tile"><h3>Claude Code: 設定全般</h3><p><code>/memory</code>、<code>/skills</code>、<code>/agents</code>、<code>/doctor</code> を使い分けます。</p></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title"><span>06</span><h2>このリポジトリでの個人運用</h2></div>
+      <div class="personal">
+        <h3>端末を変えたときの最小セット</h3>
+        <ul>
+          <li><code>AGENTS.md</code> と <code>CLAUDE.md</code> を <code>~/.codex/</code> と <code>~/.claude/</code> の両方へ配置する。</li>
+          <li><code>CLAUDE.md</code> は <code>@AGENTS.md</code> で、同じディレクトリの共通指示を読む。</li>
+          <li>プロジェクト固有の規約は、グローバルファイルを膨らませず、そのリポジトリ内の指示ファイルへ置く。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title"><span>07</span><h2>一次情報</h2></div>
+      <div class="sources">
+        <a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">OpenAI: AGENTS.md</a>
+        <a href="https://learn.chatgpt.com/docs/agent-configuration/subagents">OpenAI: Codex Subagents</a>
+        <a href="https://learn.chatgpt.com/docs/build-skills">OpenAI: Build skills</a>
+        <a href="https://learn.chatgpt.com/docs/developer-commands">OpenAI: Developer commands</a>
+        <a href="https://code.claude.com/docs/en/memory">Anthropic: CLAUDE.md memory</a>
+        <a href="https://code.claude.com/docs/en/skills">Anthropic: Skills</a>
+        <a href="https://code.claude.com/docs/en/sub-agents">Anthropic: Subagents</a>
+        <a href="https://code.claude.com/docs/en/commands">Anthropic: Commands</a>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">agents-common · 個人用の開発フィールドマニュアル。仕様差分を見つけたら、このページと出典リンクを更新する。</div></footer>
+</body>
+</html>
