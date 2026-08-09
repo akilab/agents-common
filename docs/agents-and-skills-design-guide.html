@@ -5,65 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Codex と Claude Code の agents / skills をAIと設計するための要件整理ガイド">
   <title>Agents / Skills 設計ガイド | AI 開発リファレンス</title>
-  <style>
-    :root { --ink:#17212b; --paper:#f4f2ec; --card:#fffef9; --green:#1b6658; --rust:#a94327; --rule:#d8d4ca; --mute:#68716d; --code:#202d36; }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body { margin:0; color:var(--ink); background:linear-gradient(90deg,rgba(27,102,88,.035) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(rgba(27,102,88,.035) 1px,transparent 1px) 0 0/32px 32px,var(--paper); font-family:"Yu Gothic UI","Hiragino Sans",system-ui,sans-serif; line-height:1.7; }
-    code, pre { font-family:"Cascadia Code","SFMono-Regular",Consolas,monospace; }
-    .wrap { width:min(1080px,calc(100% - 32px)); margin:auto; }
-    header { padding:48px 0 30px; border-bottom:1px solid var(--rule); }
-    .back { display:inline-block; margin-bottom:19px; color:var(--green); font-size:.86rem; text-decoration:none; }
-    .back:hover { text-decoration:underline; text-underline-offset:4px; }
-    .eyebrow { margin:0 0 10px; color:var(--green); font:700 .77rem/1 "Cascadia Code",monospace; letter-spacing:.13em; }
-    h1 { max-width:760px; margin:0 0 12px; font:700 clamp(2rem,5vw,3.7rem)/1.12 Georgia,"Yu Mincho",serif; letter-spacing:-.04em; }
-    h1 em { color:var(--rust); font-style:normal; }
-    .lede { max-width:710px; margin:0; color:#435056; }
-    nav { position:sticky; top:0; z-index:3; border-bottom:1px solid var(--rule); background:rgba(244,242,236,.94); backdrop-filter:blur(10px); }
-    nav .wrap { display:flex; gap:17px; overflow-x:auto; padding:10px 0; }
-    nav a { flex:none; color:var(--ink); font-size:.84rem; text-decoration:none; }
-    nav a:hover { color:var(--rust); text-decoration:underline; text-underline-offset:4px; }
-    main { padding:38px 0 70px; }
-    section { margin-bottom:52px; }
-    .section-title { display:flex; align-items:baseline; gap:11px; margin-bottom:16px; }
-    .section-title span { color:var(--rust); font:700 .76rem/1 "Cascadia Code",monospace; }
-    h2 { margin:0; font-size:clamp(1.25rem,2.5vw,1.65rem); letter-spacing:-.025em; }
-    h3 { margin:0 0 8px; font-size:1rem; }
-    .lead-card { padding:20px 22px; border-left:5px solid var(--green); background:#eff5f1; }
-    .lead-card p { margin:0; }
-    .split { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    .card { padding:21px; border:1px solid var(--rule); background:var(--card); }
-    .card p:last-child, .card ul:last-child { margin-bottom:0; }
-    .card.skill { border-top:4px solid var(--green); }
-    .card.agent { border-top:4px solid var(--rust); }
-    .tag { display:inline-block; margin-bottom:13px; padding:3px 7px; background:#eaf1ed; color:var(--green); font:700 .72rem/1 "Cascadia Code",monospace; }
-    .agent .tag { background:#fff0e9; color:var(--rust); }
-    .decision { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; border:1px solid var(--rule); background:var(--rule); }
-    .decision article { padding:19px; background:var(--card); }
-    .decision p { margin:0; color:#4b565a; font-size:.91rem; }
-    .checklist { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 16px; margin:0; padding:0; list-style:none; }
-    .checklist li { padding:12px 0; border-bottom:1px solid var(--rule); }
-    .checklist strong { display:block; font-size:.94rem; }
-    .checklist span { color:#526066; font-size:.88rem; }
-    pre { overflow:auto; margin:0; padding:18px; background:var(--code); color:#eaf0e9; font-size:.83rem; line-height:1.65; white-space:pre-wrap; }
-    .hint { margin-top:12px; color:var(--mute); font-size:.86rem; }
-    .table-wrap { overflow-x:auto; border:1px solid var(--rule); background:var(--card); }
-    table { width:100%; border-collapse:collapse; min-width:690px; font-size:.9rem; }
-    th, td { padding:13px 14px; border-bottom:1px solid var(--rule); text-align:left; vertical-align:top; }
-    th { color:#3c4a4d; background:#edf0eb; font-size:.78rem; letter-spacing:.05em; }
-    tr:last-child td { border-bottom:0; }
-    .sources { display:flex; flex-wrap:wrap; gap:9px; }
-    .sources a { padding:7px 10px; border:1px solid var(--rule); background:var(--card); color:var(--ink); font-size:.82rem; text-decoration:none; }
-    .sources a:hover { color:var(--green); border-color:var(--green); }
-    footer { padding:20px 0 34px; border-top:1px solid var(--rule); color:var(--mute); font-size:.8rem; }
-    @media (max-width:720px) { header { padding-top:38px; } .split,.checklist { grid-template-columns:1fr; } .decision { grid-template-columns:1fr; } }
-    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
-  </style>
+  <link rel="stylesheet" href="css/default.css">
 </head>
 <body>
   <header><div class="wrap">
     <a class="back" href="index.html">← AI 開発リファレンス</a>
-    <p class="eyebrow">DESIGN BRIEF / REUSABLE WORKFLOWS</p>
+    <p class="eyebrow">AI DEVELOPMENT / REUSABLE WORKFLOWS</p>
     <h1>Agents / Skills を<br><em>依頼できる形にする</em></h1>
     <p class="lede">これは完成済みのテンプレート集ではなく、AIに「何を作ってほしいか」を正しく渡すための設計メモです。目的・境界・完成条件を先に言語化すると、後から手直ししやすい小さな部品になります。</p>
   </div></header>

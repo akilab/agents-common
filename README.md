@@ -7,7 +7,7 @@ Codex と Claude Code で共通利用する、プロジェクトに依存しな�
 - `AGENTS.md`: 共通指示の正本。作業メモ、指示の適用順、変更と検証の基本ルールを定めます。
 - `CLAUDE.md`: `AGENTS.md` を読み込む Claude Code 用の薄いエントリポイントです。
 - `working-memory/`: このテンプレートを整備する際の判断・作業記録です。実運用では、各プロジェクトの継続作業に必要な非機密情報を記録します。
-- `docs/`: GitHub Pagesで公開するAI開発リファレンスです。Codex / Claude Code早見表と、Agents / Skills設計ガイドを含みます。
+- `docs/`: GitHub Pagesで公開するAI開発リファレンスです。Codex / Claude Code早見表、Codex CLI入門、Agents / Skills設計ガイドを含みます。
 
 ## 配置方法
 
@@ -33,4 +33,4 @@ Codex と Claude Code で共通利用する、プロジェクトに依存しな�
 
 ## 早見表
 
-ブラウザで [`docs/index.html`](docs/index.html) を開くと、早見表と Agents / Skills 設計ガイドへ移動できます。GitHub Pagesでは `main` ブランチの `/docs` を公開元に指定してください。内容には最終確認日と公式ドキュメントへのリンクを付記しています。
+ブラウザで [`docs/index.html`](docs/index.html) を開くと、早見表、Codex CLI入門、Agents / Skills 設計ガイドへ移動できます。GitHub Pagesでは `main` ブランチの `/docs` を公開元に指定してください。内容には最終確認日と公式ドキュメントへのリンクを付記しています。

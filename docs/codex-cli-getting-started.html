@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Codex CLI を初めて使う人のための、起動・依頼・確認・会話整理の入門ガイド">
+  <title>Codex CLI 入門 | AI 開発リファレンス</title>
+  <link rel="stylesheet" href="css/default.css">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="back" href="index.html">← AI 開発リファレンス</a>
+      <p class="eyebrow">CODEX CLI / FIRST STEPS</p>
+      <h1>ターミナルで始める<br><em>Codex CLI</em></h1>
+      <p class="lede">Codex CLI は、作業したいリポジトリのフォルダで起動し、会話しながらコードを読ませ、変更・検証・レビューを進めるための対話型ツールです。最初は小さな確認から始めます。</p>
+      <span class="stamp">最終確認: 2026-08-09 · 実行前に表示される権限確認を読んで承認する</span>
+    </div>
+  </header>
+
+  <nav aria-label="ページ内ナビゲーション"><div class="wrap">
+    <a href="#start">始める</a><a href="#prompt">依頼する</a><a href="#flow">進め方</a><a href="#commands">コマンド</a><a href="#safety">安全に使う</a>
+  </div></nav>
+
+  <main class="wrap">
+    <section id="start">
+      <div class="section-title"><span>01</span><h2>まず、作業したいフォルダで起動する</h2></div>
+      <div class="lead-card"><p><strong>Codex CLIは、起動した場所を作業対象として扱います。</strong> ホームフォルダで起動するのではなく、対象リポジトリへ移動してから起動します。</p></div>
+      <div class="split" style="margin-top:16px;">
+        <article class="card">
+          <span class="tag">POWERSHELL</span>
+          <h3>起動</h3>
+          <pre>cd D:\Projects\my-project
+codex</pre>
+          <p class="hint">初回はログイン画面が開くことがあります。ChatGPTアカウントで進めます。ログイン状態だけを確認するなら <code>codex login status</code> を使います。</p>
+        </article>
+        <article class="card">
+          <span class="tag">START SMALL</span>
+          <h3>最初の一言</h3>
+          <pre>このリポジトリをまだ変更せずに確認して、
+構成・起動方法・テスト方法を短く説明してください。</pre>
+          <p class="hint">最初に「変更せずに」と明示すると、環境の把握を落ち着いて始められます。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="prompt">
+      <div class="section-title"><span>02</span><h2>依頼は「目的・範囲・確認方法」を添える</h2></div>
+      <div class="grid">
+        <article class="tile"><h3>調査する</h3><p>「認証処理がどのファイルから呼ばれるか調べて、関連ファイルと流れを説明してください。変更はしないでください。」</p></article>
+        <article class="tile"><h3>修正する</h3><p>「この画面の余白を16pxに統一してください。関係ない見た目は変えず、最後にlintを実行してください。」</p></article>
+        <article class="tile"><h3>原因を探す</h3><p>「このエラーを再現し、原因候補を優先順位付きで示してください。修正前に方針を説明してください。」</p></article>
+      </div>
+      <p class="hint">いきなり「全部直して」より、対象・触らない範囲・終わりの条件を一つずつ足すと、結果をレビューしやすくなります。</p>
+    </section>
+
+    <section id="flow">
+      <div class="section-title"><span>03</span><h2>普段の進め方</h2></div>
+      <div class="decision">
+        <article><h3>1. 読ませる</h3><p>構成、既存の指示、テスト方法を確認してもらう。初めは読み取りだけの依頼が安心です。</p></article>
+        <article><h3>2. 方針を決める</h3><p>変更が大きいときは、実装前に「方針と変更対象を説明して」と頼みます。</p></article>
+        <article><h3>3. 変更を承認する</h3><p>Codexがコマンドや変更の承認を求めたら、対象・影響・理由を確認してから許可します。</p></article>
+        <article><h3>4. 検証する</h3><p>テスト・lint・ビルドなど、そのプロジェクトに合う確認を依頼します。</p></article>
+        <article><h3>5. 差分を読む</h3><p><code>/diff</code> で差分を見て、必要なら「この変更の意図を説明して」と続けます。</p></article>
+        <article><h3>6. レビューする</h3><p><code>/review</code> で作業ツリーのレビューを依頼し、指摘とテスト不足を確認します。</p></article>
+      </div>
+    </section>
+
+    <section id="commands">
+      <div class="section-title"><span>04</span><h2>最初に覚えるコマンド</h2></div>
+      <div class="command-list">
+        <div class="command"><code>/status</code><p>モデル、承認方針、書き込み可能な場所、現在のコンテキスト使用量を確認する。</p></div>
+        <div class="command"><code>/diff</code><p>Codexや自分が行った未コミット変更を確認する。</p></div>
+        <div class="command"><code>/review</code><p>現在の作業ツリーをレビューしてもらう。実装後の確認に使う。</p></div>
+        <div class="command"><code>/compact</code><p>長くなった会話を要約して、重要な要点を残したままコンテキストを空ける。</p></div>
+        <div class="command"><code>/new</code><p>表示を残したまま新しいチャットを開始する。作業テーマを切り替えるときに便利。</p></div>
+        <div class="command"><code>/clear</code><p>ターミナル表示と会話の両方を新しくする。<code>Ctrl</code> + <code>L</code> は表示だけを消し、会話は残る。</p></div>
+        <div class="command"><code>/resume</code><p>保存済みの会話を選び、以前の続きから再開する。</p></div>
+        <div class="command"><code>/quit</code><p>Codex CLIを終了する。</p></div>
+      </div>
+      <p class="hint"><code>/</code> を入力すると、その時点で使えるコマンド候補を一覧できます。全コマンドを覚える必要はありません。</p>
+    </section>
+
+    <section id="safety">
+      <div class="section-title"><span>05</span><h2>最初は安全側で使う</h2></div>
+      <div class="split">
+        <article class="card">
+          <span class="tag">DO</span>
+          <h3>おすすめ</h3>
+          <ul>
+            <li>まずは調査・説明・レビューなど、変更を伴わない依頼から始める。</li>
+            <li>変更後は <code>/diff</code> とテスト結果を確認する。</li>
+            <li>不明な承認は、何を実行するか説明させてから判断する。</li>
+            <li>リポジトリのルールは <code>AGENTS.md</code> に残す。</li>
+          </ul>
+        </article>
+        <article class="card">
+          <span class="tag">AVOID</span>
+          <h3>避けること</h3>
+          <ul>
+            <li><code>--yolo</code> など、承認とサンドボックスを一括で無効にするオプションを普段使いしない。</li>
+            <li>内容を確認せずに、削除・一括置換・外部公開の承認をしない。</li>
+            <li>既存の <code>AGENTS.md</code> があるリポジトリで、確認せずに <code>/init</code> を実行しない。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title"><span>06</span><h2>公式リファレンス</h2></div>
+      <div class="sources">
+        <a href="https://learn.chatgpt.com/docs/codex/cli">OpenAI: Codex CLI</a>
+        <a href="https://learn.chatgpt.com/docs/developer-commands?surface=cli">OpenAI: Developer commands</a>
+        <a href="https://learn.chatgpt.com/docs/agent-approvals-security">OpenAI: Agent approvals &amp; security</a>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap">agents-common · Codex CLI getting started</div></footer>
+</body>
+</html>
